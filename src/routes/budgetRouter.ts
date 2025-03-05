@@ -5,6 +5,9 @@ import { validateBudgetExist, validateBudgetId } from "../middleware/budget";
 
 const router = Router()
 
+router.param('budgetId', validateBudgetId)
+router.param('budgetId', validateBudgetExist)
+
 router.get('/', BudgetController.getAll)
 
 router.post('/',
@@ -16,14 +19,9 @@ router.post('/',
     BudgetController.create
 )
 
-router.get('/:id',
-    validateBudgetId,
-    validateBudgetExist,
-    BudgetController.getOne)
+router.get('/:budgetId', BudgetController.getOne)
 
-router.patch('/:id',
-    validateBudgetId,
-    validateBudgetExist,
+router.patch('/:budgetId',
     body('name').notEmpty().withMessage('Budget name is required'),
     body('amount')
         .notEmpty().withMessage('Budget amount is required')
@@ -31,9 +29,6 @@ router.patch('/:id',
         .custom((value) => value > 0).withMessage('amount must be greater than 0'),
     BudgetController.updateById)
 
-router.delete('/:id',
-    validateBudgetId,
-    validateBudgetExist,
-    BudgetController.delete)
+router.delete('/:budgetId', BudgetController.delete)
 
 export default router
