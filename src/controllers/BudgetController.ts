@@ -14,6 +14,7 @@ export class BudgetController{
             res.status(500).json({error: error.message})
         }
     }
+
     static create= async (req: Request, res:Response) => {
         try{
             const budget = new Budget(req.body)
@@ -24,13 +25,50 @@ export class BudgetController{
             res.status(500).json({error: error.message})
         }
     }
-    static getOne= (req: Request, res:Response) => {
-        
+
+    static getOne = async (req: Request, res: Response) => {
+        try{
+            const {id} = req.params
+            const budget = await Budget.findByPk(id)
+            if(!budget){
+                res.status(404).json({error: 'Budget not found'})
+                return
+            }
+            res.json({data: budget})
+        }
+        catch(error){
+            res.status(500).json({error: error.message})
+        }
     }
-    static update= (req: Request, res:Response) => {
-        res.send('Hello World')
+    static updateById = async (req: Request, res:Response) => {
+        try{
+            const {id} = req.params
+            const budget = await Budget.findByPk(id)
+            if(!budget){
+                res.status(404).json({error: 'Budget not found'})
+                return
+            }
+            await budget.update(req.body)
+            res.json({message: 'Budget updated successfully'})
+        }
+        catch(error){
+            res.status(500).json({error: error.message})
+        }
     }
-    static delete= (req: Request, res:Response) => {
-        res.send('Hello World')
+
+    static delete = async (req: Request, res:Response) => {
+        try{
+            const {id} = req.params
+            const budget = await Budget.findByPk(id)
+            if(!budget){
+                res.status(404).json({error: 'Budget not found'})
+                return
+            }
+            await budget.destroy()
+            res.json({message: 'Budget deleted successfully'})
+        }
+        catch(error){
+            res.status(500).json({error: error.message})
+        }
     }
 }
