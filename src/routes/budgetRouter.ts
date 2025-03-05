@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { BudgetController } from "../controllers/BudgetController";
 import { body, param } from 'express-validator'
-import { validateBudgetId } from "../middleware/budget";
+import { validateBudgetExist, validateBudgetId } from "../middleware/budget";
 
 const router = Router()
 
@@ -18,10 +18,12 @@ router.post('/',
 
 router.get('/:id',
     validateBudgetId,
+    validateBudgetExist,
     BudgetController.getOne)
 
 router.patch('/:id',
     validateBudgetId,
+    validateBudgetExist,
     body('name').notEmpty().withMessage('Budget name is required'),
     body('amount')
         .notEmpty().withMessage('Budget amount is required')
@@ -31,6 +33,7 @@ router.patch('/:id',
 
 router.delete('/:id',
     validateBudgetId,
+    validateBudgetExist,
     BudgetController.delete)
 
 export default router

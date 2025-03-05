@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import Budget from '../models/Budget';
+import Budget from '../models/budget';
 export class BudgetController{
     static getAll= async(req: Request, res:Response, next:any) => {
         try{
@@ -27,48 +27,16 @@ export class BudgetController{
     }
 
     static getOne = async (req: Request, res: Response) => {
-        try{
-            const {id} = req.params
-            const budget = await Budget.findByPk(id)
-            if(!budget){
-                res.status(404).json({error: 'Budget not found'})
-                return
-            }
-            res.json({data: budget})
-        }
-        catch(error){
-            res.status(500).json({error: error.message})
-        }
+        res.json({data: req.budget})
     }
+
     static updateById = async (req: Request, res:Response) => {
-        try{
-            const {id} = req.params
-            const budget = await Budget.findByPk(id)
-            if(!budget){
-                res.status(404).json({error: 'Budget not found'})
-                return
-            }
-            await budget.update(req.body)
-            res.json({message: 'Budget updated successfully'})
-        }
-        catch(error){
-            res.status(500).json({error: error.message})
-        }
+        await req.budget.update(req.body)
+        res.json({message: 'Budget updated successfully'})
     }
 
     static delete = async (req: Request, res:Response) => {
-        try{
-            const {id} = req.params
-            const budget = await Budget.findByPk(id)
-            if(!budget){
-                res.status(404).json({error: 'Budget not found'})
-                return
-            }
-            await budget.destroy()
-            res.json({message: 'Budget deleted successfully'})
-        }
-        catch(error){
-            res.status(500).json({error: error.message})
-        }
+        await req.budget.destroy()
+        res.json({message: 'Budget deleted successfully'})
     }
 }
