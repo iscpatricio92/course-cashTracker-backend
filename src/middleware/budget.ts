@@ -40,3 +40,19 @@ export const validateBudgetExist = async (req: Request, res: Response, next: Nex
         res.status(500).json({ error: error.message })
     }
 }
+
+export const validateBudgetInput = async (req: Request, res: Response, next: NextFunction) => {
+    await param('name').notEmpty().withMessage('Budget name is required').run(req);
+    await param('amount')
+        .notEmpty().withMessage('Budget amount is required')
+        .isNumeric().withMessage('amount must be a number')
+        .custom((value) => value > 0).withMessage('amount must be greater than 0')
+        .run(req);
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+    } else {
+        next();
+    }
+}
