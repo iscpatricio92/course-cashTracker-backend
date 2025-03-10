@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { param } from 'express-validator';
-import { validationResult } from 'express-validator'
+import { param, validationResult } from 'express-validator';
 import Budget from '../models/Budget';
 
 declare global {
@@ -12,12 +11,13 @@ declare global {
 }
 
 export const validateBudgetId = async (req: Request, res: Response, next: NextFunction) => {
-    await param('budgetId').isInt().withMessage('id must be a number')
+    await param('budgetId')
+        .isInt().withMessage('id must be a number').bail()
         .custom(value => value > 0)
         .withMessage('id must be greater than 0')
         .run(req);
 
-    const errors = validationResult(req);
+    let errors = validationResult(req);
     if (!errors.isEmpty()) {
         res.status(400).json({ errors: errors.array() });
     } else {
@@ -25,13 +25,13 @@ export const validateBudgetId = async (req: Request, res: Response, next: NextFu
     }
 }
 
-export const validateBudgetExist = async (req: Request, res: Response, next: NextFunction) => {
+export const validateBudgetExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { budgetId } = req.params
         const budget = await Budget.findByPk(budgetId)
         if (!budget) {
-            res.status(404).json({ error: 'Budget not found' })
-            return
+            const error = new Error('Budget not found')
+            return res.status(404).json({ error: error.message })
         }
         req.budget = budget
         next()
@@ -42,7 +42,8 @@ export const validateBudgetExist = async (req: Request, res: Response, next: Nex
 }
 
 export const validateBudgetInput = async (req: Request, res: Response, next: NextFunction) => {
-    await param('name').notEmpty().withMessage('Budget name is required').run(req);
+    await param('name')
+        .notEmpty().withMessage('Budget name is required').run(req);
     await param('amount')
         .notEmpty().withMessage('Budget amount is required')
         .isNumeric().withMessage('amount must be a number')
@@ -56,3 +57,12 @@ export const validateBudgetInput = async (req: Request, res: Response, next: Nex
         next();
     }
 }
+
+
+/* export function hasAccess(req: Request, res: Response, next: NextFunction) {
+    if(req.budget.userId !== req.user.id) {
+        const error = new Error('Acción no válida')
+        return res.status(401).json({error: error.message})
+    }
+    next()
+} */
