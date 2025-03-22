@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import User from '../models/User'
 import { hashPassword } from '../utils/auth';
 import { generateToken } from '../utils/token';
+import { AuthEmail } from '../emails/AuthEmail';
 
 export class AuthController {
     static createAccount = async (req: Request, res: any) => {
@@ -17,11 +18,30 @@ export class AuthController {
             user.password = await hashPassword(password)
             user.token = generateToken()
             await user.save()
+            //send welcome email
+            await AuthEmail.sendConfirmationEmail({
+                email: user.email,
+                name: user.name,
+                token: user.token
+            })
             res.json({message: 'Account created successfully'})
         }
         catch(error){
             res.status(500).json({error: error.message})
         }
+    }
+
+    static confirmAccount = async (req: Request, res: any) => {
+        const {token} = req.body
+        const user = await User.findOne({where:{token}})
+        if(!user){
+            const error = new Error('Invalid token')
+            return res.status(401).json({error: error.message})
+        }
+        user.confirmed = true
+        user.token = null
+        await user.save()
+        res.json({message: 'Account confirmed successfully'})
     }
 
     /* static getById = async (req: Request, res: Response) => {
