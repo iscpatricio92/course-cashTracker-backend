@@ -1,8 +1,9 @@
-import type { Request, Response } from 'express'
+import type { Request } from 'express'
 import User from '../models/User'
-import { hashPassword } from '../utils/auth';
+import { checkPassword, hashPassword } from '../utils/auth';
 import { generateToken } from '../utils/token';
 import { AuthEmail } from '../emails/AuthEmail';
+import { generateJWT } from '../utils/jwt';
 
 export class AuthController {
     static createAccount = async (req: Request, res: any) => {
@@ -44,17 +45,25 @@ export class AuthController {
         res.json({message: 'Account confirmed successfully'})
     }
 
-    /* static getById = async (req: Request, res: Response) => {
-        res.status(200).json(req.expense)
-    }
+    static login = async (req: Request, res: any) => {
+        const {email, password} = req.body
+        const user = await User.findOne({where: {email}})
+        if(!user){
+            const error = new Error('User not found')
+            return res.status(404).json({error: error.message})
+        }
+        if(!user.confirmed){
+            const error = new Error('Account not confirmed')
+            return res.status(403).json({error: error.message})
+        }
 
-    static updateById = async (req: Request, res: Response) => {
-        await req.expense.update(req.body)
-        res.status(200).json({message: 'Expense updated successfully'})
-    }
+        const isPasswordCorrect = checkPassword(password, user.password)
+        if(!isPasswordCorrect){
+            const error = new Error('Invalid password')
+            return res.status(401).json({error: error.message})
+        }
 
-    static deleteById = async (req: Request, res: Response) => {
-        await req.expense.destroy()
-        res.status(200).json({message: 'Expense deleted successfully'})
-    } */
+        const token = generateJWT(user.id)
+        res.json({message: 'Login successful', token})
+    }
 }

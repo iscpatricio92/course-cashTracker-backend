@@ -20,4 +20,11 @@ router.post('/confirm-account',
     handleInputErrors,
     AuthController.confirmAccount
 )
+
+router.post('/login',
+    body('email').isEmail().withMessage('Email is not valid'),
+    body('password').isLength({ min: 4 }).withMessage('Password must be at least 4 characters long'),
+    handleInputErrors,
+    AuthController.login)
+
 export default router
