@@ -2,6 +2,8 @@ import { createRequest, createResponse } from "node-mocks-http";
 import Expense from "../../../models/Expense";
 import { expenses } from "../../mocks/expenses";
 import { validateExpenseExists } from "../../../middleware/expense";
+import { budgets } from '../../mocks/budgets';
+import { hasAccess } from "../../../middleware/budget";
 
 jest.mock('../../../models/Expense', () => ({
     findByPk: jest.fn()
@@ -63,5 +65,24 @@ describe('Expense Middleware', () => {
             expect(data).toEqual({ error: 'Error' });
             expect(next).not.toHaveBeenCalled();
         });
+
+        it('should prevent unauthorized user from adding expenses', async () => {
+            const req = createRequest({
+                method: 'POST',
+                url: '/api/budgets/:budgetId/expenses',
+                budget: budgets[0],
+                user: { id: 20 },
+                body: { name: 'Expense test', amount: 100 }
+            });
+
+            const res = createResponse();
+            const next = jest.fn();
+
+            hasAccess(req, res, next);
+            const data = res._getJSONData();
+            expect(res.statusCode).toBe(401);
+            expect(data).toEqual({ error: 'Access denied' });
+            expect(next).not.toHaveBeenCalled();
+        })
     })
 })
