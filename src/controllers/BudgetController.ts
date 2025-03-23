@@ -10,7 +10,7 @@ export class BudgetController {
                     ['createdAt', 'DESC']
                 ],
                 where: {
-                    //userId: req.user.id
+                    userId: req.user.id
                 }
             })
             res.json({data: budgets})

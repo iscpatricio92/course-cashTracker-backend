@@ -2,10 +2,9 @@ import { Router } from 'express'
 import { BudgetController } from '../controllers/BudgetController'
 import { ExpensesController } from '../controllers/ExpenseController'
 import { handleInputErrors } from '../middleware/validation'
-import { validateBudgetExists, validateBudgetId, validateBudgetInput } from '../middleware/budget'
+import { hasAccess, validateBudgetExists, validateBudgetId, validateBudgetInput } from '../middleware/budget'
 import { validateExpenseExists, validateExpenseId, validateExpenseInput } from '../middleware/expense'
 import { authenticate } from '../middleware/auth'
-//import { authenticate } from '../middleware/auth'
 
 const router = Router()
 
@@ -13,7 +12,7 @@ router.use(authenticate)
 
 router.param('budgetId', validateBudgetId)
 router.param('budgetId', validateBudgetExists)
-//router.param('budgetId', hasAccess)
+router.param('budgetId', hasAccess)
 
 router.param('expenseId', validateExpenseId)
 router.param('expenseId', validateExpenseExists)
@@ -29,7 +28,7 @@ router.post('/',
 
 router.get('/:budgetId', BudgetController.getById)
 
-router.put('/:budgetId',
+router.patch('/:budgetId',
     validateBudgetInput,
     handleInputErrors,
     BudgetController.updateById
