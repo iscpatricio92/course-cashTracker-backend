@@ -1,5 +1,5 @@
 import { createRequest, createResponse } from "node-mocks-http"
-import { validateBudgetExists } from "../../../middleware/budget"
+import { hasAccess, validateBudgetExists } from "../../../middleware/budget"
 import Budget from "../../../models/Budget"
 import { budgets } from "../../mocks/budgets"
 
@@ -51,6 +51,38 @@ describe('Budget Middleware', () => {
             const data = res._getJSONData()
             expect(res.statusCode).toBe(500)
             expect(data).toEqual({ error: 'Server error' })
+            expect(next).not.toHaveBeenCalled()
+        })
+    })
+
+    describe('hasAccess', () => {
+        it('should call next is user has acces to budget', async () => {
+            const req = createRequest({
+                budget: budgets[0],
+                user: { id: 1 }
+            })
+
+            const res = createResponse()
+            const next = jest.fn()
+
+            hasAccess(req, res, next)
+            expect(next).toHaveBeenCalled()
+
+        })
+
+        it('should handle return 401 unauthorized access if user does not have access to budget', async () => {
+            const req = createRequest({
+                budget: budgets[0],
+                user: { id: 2 }
+            })
+
+            const res = createResponse()
+            const next = jest.fn()
+
+            hasAccess(req, res, next)
+            const data = res._getJSONData()
+            expect(res.statusCode).toBe(401)
+            expect(data).toEqual({ error: 'Access denied' })
             expect(next).not.toHaveBeenCalled()
         })
     })
