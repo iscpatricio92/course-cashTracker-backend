@@ -16,17 +16,18 @@ export class AuthController {
             return res.status(409).json({error: error.message})
         }
         try{
-            const user = new User(req.body)
-            user.password = await hashPassword(password)
-            user.token = generateToken()
-            await user.save()
+            const user = await User.create({
+                ...req.body,
+                password: await hashPassword(password),
+                token: generateToken()
+            })
             //send welcome email
             await AuthEmail.sendConfirmationEmail({
                 email: user.email,
                 name: user.name,
                 token: user.token
             })
-            res.json({message: 'Account created successfully'})
+            res.status(201).json({message: 'Account created successfully'})
         }
         catch(error){
             res.status(500).json({error: error.message})
