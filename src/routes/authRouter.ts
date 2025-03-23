@@ -4,15 +4,18 @@ import { body, param } from "express-validator";
 import { handleInputErrors } from "../middleware/validation";
 import { limiter } from "../config/limiter";
 import { authenticate } from '../middleware/auth';
+import { CHECKED_PASSWORD, CONFIRM_ACCOUNT, CREATE_ACCOUNT, FORGOT_PASSWORD, GET_USER, LOGIN, RESET_PASSWORD, UPDATE_PASSWORD, VALIDATE_TOKEN } from "../constants/endpoints";
 const router = Router()
-router.post('/create-account',
+router.post(
+    CREATE_ACCOUNT,
     body('email').isEmail().withMessage('Email is not valid'),
     body('password').isLength({ min: 4 }).withMessage('Password must be at least 4 characters long'),
     body('name').notEmpty().withMessage('Name is required'),
     handleInputErrors,
     AuthController.createAccount)
 
-router.post('/confirm-account',
+router.post(
+    CONFIRM_ACCOUNT,
     limiter,
     body('token')
         .notEmpty()
@@ -22,19 +25,22 @@ router.post('/confirm-account',
     AuthController.confirmAccount
 )
 
-router.post('/login',
+router.post(
+    LOGIN,
     body('email').isEmail().withMessage('Email is not valid'),
     body('password').isLength({ min: 4 }).withMessage('Password must be at least 4 characters long'),
     handleInputErrors,
     AuthController.login)
 
-router.post('/forgot-password',
+router.post(
+    FORGOT_PASSWORD,
     body('email').isEmail().withMessage('Email is not valid'),
     handleInputErrors,
     AuthController.forgotPassword
 )
 
-router.post('/validate-token',
+router.post(
+    VALIDATE_TOKEN,
     body('token')
         .notEmpty()
         .isLength({ min: 6, max: 6 })
@@ -43,7 +49,8 @@ router.post('/validate-token',
     AuthController.validateToken
 )
 
-router.post('/reset-password/:token',
+router.post(
+    RESET_PASSWORD,
     body('password').isLength({ min: 4 }).withMessage('Password must be at least 4 characters long'),
     param('token')
         .notEmpty()
@@ -53,12 +60,14 @@ router.post('/reset-password/:token',
     AuthController.resetPasswordWithToken
 )
 
-router.get('/user',
+router.get(
+    GET_USER,
     authenticate,
     AuthController.user
 )
 
-router.post('/update-password',
+router.post(
+    UPDATE_PASSWORD,
     authenticate,
     body('current_password')
         .notEmpty()
@@ -70,7 +79,8 @@ router.post('/update-password',
     AuthController.updateCurrentUserPassword
 )
 
-router.post('/check-password',
+router.post(
+    CHECKED_PASSWORD,
     authenticate,
     body('password')
         .notEmpty()

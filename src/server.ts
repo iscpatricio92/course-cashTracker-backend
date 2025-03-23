@@ -4,8 +4,9 @@ import morgan from 'morgan'
 import { db } from './config/db'
 import budgetRouter from './routes/budgetRouter'
 import authRouter from './routes/authRouter'
+import { AUTH, BASE, BUDGETS } from './constants/endpoints'
 
-const connectDB = async () => {
+export const connectDB = async () => {
     try {
         await db.authenticate()
         db.sync()
@@ -23,7 +24,10 @@ app.use(morgan('dev'))
 
 app.use(express.json())
 
-app.use('/api/budgets', budgetRouter)
-app.use('/api/auth', authRouter)
+app.use(`${BUDGETS}`, budgetRouter)
+app.use(`${AUTH}`, authRouter)
+app.get(`${BASE}`, (req, res) => {
+    res.json({message:'Api found :D'})
+})
 
 export default app
