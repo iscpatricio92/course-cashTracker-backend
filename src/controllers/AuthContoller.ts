@@ -4,6 +4,7 @@ import { checkPassword, hashPassword } from '../utils/auth';
 import { generateToken } from '../utils/token';
 import { AuthEmail } from '../emails/AuthEmail';
 import { generateJWT } from '../utils/jwt';
+import { verify } from 'jsonwebtoken';
 
 export class AuthController {
     static createAccount = async (req: Request, res: any) => {
@@ -114,5 +115,32 @@ export class AuthController {
         res.json({
             message: 'Password has been successfully changed',
         })
+    }
+
+    static user = async (req: Request, res: any) => {
+        const bearer = req.headers.authorization
+        if(!bearer){
+            const error = new Error('No authorization header')
+            return res.status(401).json({error: error})
+        }
+
+        const [ ,token] = req.headers.authorization?.split(' ')
+        if(!token){
+            const error = new Error('Token not found')
+            return res.status(401).json({error: error.message})
+        }
+
+        try{
+            const decoded = await verify(token, process.env.JWT_SECRET);
+            if(typeof decoded === 'object' && decoded.id){
+                const user = await User.findByPk(decoded.id,{
+                    attributes:['id', 'name', 'email']
+                })
+                res.json({message: 'User found', user})
+            }
+        }
+        catch(error){
+            res.status(500).json({error: error.message})
+        }
     }
 }
