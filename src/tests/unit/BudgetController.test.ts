@@ -8,7 +8,9 @@ jest.mock('../../models/Budget',()=>({
     create: jest.fn(),
     findByPk: jest.fn()
 }))
-describe('BudgetController.getAll', () => {
+
+describe('BudgetController', () => {
+describe('getAll', () => {
     beforeEach(() => {
         (Budget.findAll as jest.Mock).mockReset();
         (Budget.findAll as jest.Mock).mockImplementation((options) => {
@@ -85,3 +87,56 @@ describe('BudgetController.getAll', () => {
     })
 });
 
+describe('create', () => {
+    it('Should create a new budget and respond with statusCode 201', async () => {
+
+        const budgetMock = {
+            save: jest.fn().mockResolvedValue(true)
+        };
+
+        (Budget.create as jest.Mock).mockResolvedValue(budgetMock)
+        const req = createRequest({
+            method: 'POST',
+            url: '/api/budgets',
+            user: { id: 1 },
+            body: {name: 'Budget test', amount: 1000}
+        })
+        const res = createResponse();
+        await BudgetController.create(req, res)
+
+        const data = res._getJSONData()
+
+        expect(res.statusCode).toBe(201)
+        expect(data).toEqual({message:'Budget created successfully'})
+        expect(budgetMock.save).toHaveBeenCalled()
+        expect(budgetMock.save).toHaveBeenCalledTimes(1)
+        expect(Budget.create).toHaveBeenCalledWith(req.body)
+    })
+
+    it('Should handle budget creation error', async () => {
+        const budgetMock = {
+            save: jest.fn()
+        };
+
+        (Budget.create as jest.Mock).mockRejectedValue(new Error)
+        const req = createRequest({
+            method: 'POST',
+            url: '/api/budgets',
+            user: { id: 1 },
+            body: {name: 'Budget test', amount: 1000}
+        })
+        const res = createResponse();
+        await BudgetController.create(req, res)
+
+        const data = res._getJSONData()
+
+        expect(res.statusCode).toBe(500)
+        expect(data).toEqual({error: 'Error creating budget'})
+        expect(budgetMock.save).not.toHaveBeenCalled()
+        expect(Budget.create).toHaveBeenCalledWith(req.body)
+    })
+})
+
+
+
+})
