@@ -18,7 +18,6 @@ export class AuthEmail {
                 <a href="#">To confirm your account introducing this token ${user.token}</a>
             `
         })
-        console.log('Message sent: %s', email);
     }
 
     static sendPasswordResetToken = async (user: emailType) => {
@@ -33,6 +32,5 @@ export class AuthEmail {
                 <a href="#">${user.token}</a>
             `
         })
-        console.log('Message sent: %s', email);
     }
 }

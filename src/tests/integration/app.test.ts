@@ -90,6 +90,23 @@ describe('CashTracker Integrations Test', () => {
                 expect(response.status).not.toBe(400);
                 expect(response.body).toEqual({ message: "Account created successfully" });
             });
+
+            it('should return 409 conflict when a user is already registered', async () => {
+                const userData = {
+                    "name": "John Doe",
+                    "email": "test@test.com",
+                    "password": "123456"
+                };
+                const response = await request(server)
+                    .post(`${AUTH}${CREATE_ACCOUNT}`)
+                    .send(userData);
+
+                expect(response.status).toBe(409);
+                expect(response.status).not.toBe(201);
+                expect(response.status).not.toBe(400);
+                expect(response.body).toEqual({ error: "Email already exists" });
+                expect(response.body).not.toHaveProperty('errors');
+            });
         });
     });
 });
