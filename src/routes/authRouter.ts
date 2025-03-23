@@ -33,4 +33,13 @@ router.post('/forgot-password',
     AuthController.forgotPassword
 )
 
+router.post('/validate-token',
+    body('token')
+        .notEmpty()
+        .isLength({ min: 6, max: 6 })
+        .withMessage('Token is required'),
+    handleInputErrors,
+    AuthController.validateToken
+)
+
 export default router

@@ -84,4 +84,15 @@ export class AuthController {
         })
         res.json({message: 'Password reset email sent',user})
     }
+
+    static validateToken = async (req: Request, res: any) => {
+        const {token} = req.body
+
+        const tokenExist = await User.findOne({where: {token}})
+        if(!tokenExist){
+            const error = new Error('Invalid token')
+            return res.status(404).json({error: error.message})
+        }
+        res.json({message: 'Token valid'})
+    }
 }
