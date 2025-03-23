@@ -58,4 +58,16 @@ router.get('/user',
     AuthController.user
 )
 
+router.post('/update-password',
+    authenticate,
+    body('current_password')
+        .notEmpty()
+        .withMessage('Password must be provided'),
+    body('password')
+        .isLength({ min: 4 })
+        .withMessage('Password must be at least 4 characters long'),
+    handleInputErrors,
+    AuthController.updateCurrentUserPassword
+)
+
 export default router
