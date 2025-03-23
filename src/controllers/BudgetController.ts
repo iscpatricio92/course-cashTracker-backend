@@ -15,7 +15,7 @@ export class BudgetController {
             })
             res.json({data: budgets})
         } catch (error) {
-            res.status(500).json({error: error.message})
+            res.status(500).json({error: 'Error fetching budgets'})
         }
     }
 
