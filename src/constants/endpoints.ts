@@ -1,0 +1,14 @@
+export const API_HOST= process.env.API_HOST || 'http://localhost:4000';
+export const BASE= '/';
+export const API= `${BASE}api/`;
+export const BUDGETS = `${API}budgets`;
+export const AUTH = `${API}auth`;
+export const CREATE_ACCOUNT = `/create-account`;
+export const CONFIRM_ACCOUNT = `/confirm-account`;
+export const LOGIN = `/login`;
+export const FORGOT_PASSWORD = `/forgot-password`;
+export const VALIDATE_TOKEN = `/validate-token`;
+export const RESET_PASSWORD = `/reset-password/:token`;
+export const GET_USER = `/user`;
+export const UPDATE_PASSWORD = `/update-password`;
+export const CHECKED_PASSWORD = `/checked-password`;
