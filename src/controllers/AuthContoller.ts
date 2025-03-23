@@ -118,29 +118,9 @@ export class AuthController {
     }
 
     static user = async (req: Request, res: any) => {
-        const bearer = req.headers.authorization
-        if(!bearer){
-            const error = new Error('No authorization header')
-            return res.status(401).json({error: error})
-        }
-
-        const [ ,token] = req.headers.authorization?.split(' ')
-        if(!token){
-            const error = new Error('Token not found')
-            return res.status(401).json({error: error.message})
-        }
-
-        try{
-            const decoded = await verify(token, process.env.JWT_SECRET);
-            if(typeof decoded === 'object' && decoded.id){
-                const user = await User.findByPk(decoded.id,{
-                    attributes:['id', 'name', 'email']
-                })
-                res.json({message: 'User found', user})
-            }
-        }
-        catch(error){
-            res.status(500).json({error: error.message})
-        }
+        res.json({
+            'message': 'User data',
+            user: req.user
+        })
     }
 }

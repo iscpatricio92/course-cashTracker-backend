@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import User from '../models/User'
 
@@ -10,30 +10,28 @@ declare global {
     }
 }
 
-export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+export const authenticate = async (req: Request, res: any, next: NextFunction) => {
     const bearer = req.headers.authorization
+    if (!bearer) {
+        const error = new Error('No authorization header')
+        return res.status(401).json({ error: error.message })
+    }
 
-        if(!bearer) {
-            const error = new Error('No Autorizado')
-            return res.status(401).json({error: error.message})
+    const [, token] = bearer.split(' ')
+    if (!token) {
+        const error = new Error('Token not found')
+        return res.status(401).json({ error: error.message })
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        if (typeof decoded === 'object' && decoded.id) {
+            req.user = await User.findByPk(decoded.id, {
+                attributes: ['id', 'name', 'email']
+            })
+            next()
         }
-
-        const [ , token] = bearer.split(' ')
-        if(!token) {
-            const error = new Error('Token no válido')
-            return res.status(401).json({error: error.message})
-        }
-
-        try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET)
-            if(typeof decoded === 'object' && decoded.id) {
-                req.user = await User.findByPk(decoded.id, {
-                    attributes: ['id', 'name', 'email']
-                })
-                next()
-            }
-        } catch (error) {
-            res.status(500).json({error: 'Token no válido'})
-        }
-
+    } catch (error) {
+        res.status(500).json({ error: 'Token no válido' })
+    }
 }

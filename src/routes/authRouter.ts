@@ -3,6 +3,7 @@ import { AuthController } from "../controllers/AuthContoller";
 import { body, param } from "express-validator";
 import { handleInputErrors } from "../middleware/validation";
 import { limiter } from "../config/limiter";
+import { authenticate } from '../middleware/auth';
 const router = Router()
 router.post('/create-account',
     body('email').isEmail().withMessage('Email is not valid'),
@@ -53,6 +54,7 @@ router.post('/reset-password/:token',
 )
 
 router.get('/user',
+    authenticate,
     AuthController.user
 )
 
