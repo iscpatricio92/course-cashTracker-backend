@@ -217,7 +217,7 @@ describe('BudgetController', () => {
             expect(budgetMock.update).toHaveBeenCalledWith(req.body)
         })
     })
-    
+
     describe('deleteById', () => {
         it('should delete the budget and return a success message', async () => {
             const budgetMock = {
@@ -230,7 +230,7 @@ describe('BudgetController', () => {
             })
             const res = createResponse();
             await BudgetController.deleteById(req, res)
-    
+
             const data = res._getJSONData()
             expect(res.statusCode).toBe(200);
             expect(data).toEqual({message: 'Budget deleted successfully'});
