@@ -20,4 +20,19 @@ export class AuthEmail {
         })
         console.log('Message sent: %s', email);
     }
+
+    static sendPasswordResetToken = async (user: emailType) => {
+        const email = await transport.sendMail({
+            from:'cashTracker isc.patricio@gmail.com',
+            to: user.email,
+            subject: 'CashTracker Password Reset',
+            html: `
+                <h1>Cash Password Reset</h1>
+                <p>Hi ${user.name},</p>
+                <p>Your request for reset password is:</p>
+                <a href="#">${user.token}</a>
+            `
+        })
+        console.log('Message sent: %s', email);
+    }
 }

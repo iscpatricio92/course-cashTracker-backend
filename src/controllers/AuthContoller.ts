@@ -66,4 +66,22 @@ export class AuthController {
         const token = generateJWT(user.id)
         res.json({message: 'Login successful', token})
     }
+
+    static forgotPassword = async (req: Request, res: any) => {
+        const {email} = req.body
+        const user = await User.findOne({where: {email}})
+        if(!user){
+            const error = new Error('User not found')
+            return res.status(404).json({error: error.message})
+        }
+        user.token = generateToken()
+        await user.save()
+
+        await AuthEmail.sendPasswordResetToken({
+            name: user.name,
+            email: user.email,
+            token: user.token
+        })
+        res.json({message: 'Password reset email sent',user})
+    }
 }
