@@ -95,4 +95,24 @@ export class AuthController {
         }
         res.json({message: 'Token valid'})
     }
+
+    static resetPasswordWithToken = async (req: Request, res: any) => {
+        const {token} = req.params
+        const {password} = req.body
+
+        const user = await User.findOne({where: {token}})
+        if(!user){
+            const error = new Error('Invalid token')
+            return res.status(404).json({error: error.message})
+        }
+
+        //asign new password
+        user.password = await hashPassword(password)
+        user.token = null
+        await user.save()
+
+        res.json({
+            message: 'Password has been successfully changed',
+        })
+    }
 }
